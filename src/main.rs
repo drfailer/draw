@@ -28,9 +28,11 @@ pub fn main() {
             Color::RGB(255, 0, 0),
             false,
         );
-        sdl_ui::draw::circle(&mut ui.canvas, Coordinates::Screen(200, 200), 20, Color::RGB(255, 255, 255));
-        sdl_ui::draw::circle(&mut ui.canvas, Coordinates::Screen(200, 200), 19, Color::RGB(0, 0, 0));
-        sdl_ui::draw::circle(&mut ui.canvas, Coordinates::Norm(-1., -1.), 20, Color::RGB(255, 255, 255));
+        for radius in (1..100).step_by(5) {
+            sdl_ui::draw::circle(&mut ui.canvas, Coordinates::Screen(200, 200), radius, Color::RGB(255, 255, 255), false);
+        }
+        // sdl_ui::draw::circle(&mut ui.canvas, Coordinates::Screen(200, 200), 19, Color::RGB(0, 0, 0));
+        sdl_ui::draw::circle(&mut ui.canvas, Coordinates::Norm(-1., -1.), 20, Color::RGB(255, 255, 255), false);
 
         for event in ui.sdl.event_pump().unwrap().poll_iter() {
             ui.event_handler(event);

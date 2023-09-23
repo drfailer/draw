@@ -104,6 +104,7 @@ pub fn circle(
     coord: Coordinates,
     radius: i32,
     color: Color,
+    fill: bool,
 ) {
     let (x, y) = norm_to_screen(coord);
     let begin_y = y - radius;
@@ -111,34 +112,69 @@ pub fn circle(
     let mut loop_x;
     let mut ix = x;
 
-    for iy in begin_y..=end_y {
-        loop_x = true;
-        while loop_x && ix >= x - radius as i32 {
-            let (norm_ix, norm_iy) = (ix, -iy + HEIGHT as i32);
-            let (norm_x, norm_y) = (x, -y + HEIGHT as i32);
-            if circle_equation(norm_ix, norm_iy, norm_x, norm_y, radius) >= 0 {
-                let dx = x - ix;
-                let dy = y - iy;
-                rectangle(
-                    canvas,
-                    Coordinates::Screen(ix, iy),
-                    2 * dx as u32,
-                    1,
-                    color,
-                    true,
-                );
-                rectangle(
-                    canvas,
-                    Coordinates::Screen(ix, y + dy),
-                    2 * dx as u32,
-                    1,
-                    color,
-                    true,
-                );
-                loop_x = false;
-            } else {
-                ix -= 1;
+    if fill {
+        for iy in begin_y..=end_y {
+            loop_x = true;
+            while loop_x && ix >= x - radius as i32 {
+                let (norm_ix, norm_iy) = (ix, -iy + HEIGHT as i32);
+                let (norm_x, norm_y) = (x, -y + HEIGHT as i32);
+                if circle_equation(norm_ix, norm_iy, norm_x, norm_y, radius) >= 0 {
+                    let dx = x - ix;
+                    let dy = y - iy;
+                    rectangle(
+                        canvas,
+                        Coordinates::Screen(ix, iy),
+                        2 * dx as u32,
+                        1,
+                        color,
+                        true,
+                    );
+                    rectangle(
+                        canvas,
+                        Coordinates::Screen(ix, y + dy),
+                        2 * dx as u32,
+                        1,
+                        color,
+                        true,
+                    );
+                    loop_x = false;
+                } else {
+                    ix -= 1;
+                }
+            }
+        }
+    } else {
+        for iy in begin_y..=end_y {
+            loop_x = true;
+            while loop_x && ix >= x - radius as i32 {
+                let (norm_ix, norm_iy) = (ix, -iy + HEIGHT as i32);
+                let (norm_x, norm_y) = (x, -y + HEIGHT as i32);
+                if circle_equation(norm_ix, norm_iy, norm_x, norm_y, radius) >= 0 {
+                    let ix_save = ix;
+                    while circle_equation(ix, norm_iy, norm_x, norm_y, radius) <= 2*radius {
+                        let dx = x - ix;
+                        let dy = y - iy;
+                        square(canvas, Coordinates::Screen(ix, iy), 1, color, true);
+                        square(canvas, Coordinates::Screen(ix, y + dy), 1, color, true);
+                        square(canvas, Coordinates::Screen(x + dx, iy), 1, color, true);
+                        square(canvas, Coordinates::Screen(x + dx, y + dy), 1, color, true);
+                        ix -= 1;
+                    }
+                    ix = ix_save;
+                    loop_x = false;
+                } else {
+                    ix -= 1;
+                }
             }
         }
     }
+}
+
+fn triangle(
+    canvas: &mut Canvas<sdl2::video::Window>,
+    point1: Coordinates,
+    point2: Coordinates,
+    point3: Coordinates,
+) {
+    todo!();
 }
