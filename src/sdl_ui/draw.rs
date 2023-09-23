@@ -1,63 +1,16 @@
 use sdl2::{pixels::Color, rect::Rect, render::Canvas};
 
-use super::ui::{HEIGHT, WIDTH};
-
-// NOTE: if the coordinates are normalised, may be make a conversion here
-// it would be nice to add an enum for coordinates in differents plans (and conversion functions)
-
-pub enum Coordinates {
-    Screen(i32, i32),
-    Norm(f32, f32),
-}
-
-// -1..1 => 0..WIDTH
-// x in -1..1
-// x + 1 in 0..2
-// (x + 1)/2 in 0..1
-// WIDTH*(x + 1)/2 in 0..WIDTH
-
-// 0..WIDTH => -1..1
-// x in 0..WIDTH
-// x / WIDTH in 0..1
-// 2 * x / WIDTH in 0..2
-// 2 * x / WIDTH - 1 in -1..1
-//
-// y in HEIGHT..0
-// -y + HEIGHT in 0..HEIGHT
-// (-y + HEIGHT) / HEIGHT in 0..1
-// 2 * (-y + HEIGHT) / HEIGHT - 1 in -1..1
-
-fn norm_to_screen(coord: Coordinates) -> (i32, i32) {
-    return match coord {
-        Coordinates::Norm(x, y) => {
-            let sx = (WIDTH as f32) * (x + 1.) / 2.;
-            let sy = (HEIGHT as f32) - (HEIGHT as f32) * (y + 1.) / 2.;
-            (sx as i32, sy as i32)
-        }
-        Coordinates::Screen(x, y) => (x, y),
-    };
-}
-
-fn screen_to_norm(coord: Coordinates) -> (f32, f32) {
-    return match coord {
-        Coordinates::Screen(x, y) => {
-            let sx = 2. * (x as f32) / (WIDTH as f32) - 1.;
-            let sy = 2. * ((-y as f32) + (HEIGHT as f32)) / (HEIGHT as f32) - 1.;
-            (sx, sy)
-        }
-        Coordinates::Norm(x, y) => (x, y),
-    };
-}
+use super::{ui::HEIGHT , coordinates};
 
 pub fn rectangle(
     canvas: &mut Canvas<sdl2::video::Window>,
-    coord: Coordinates,
+    coord: coordinates::Vec2,
     width: u32,
     height: u32,
     color: Color,
     fill: bool,
 ) {
-    let (sx, sy) = norm_to_screen(coord);
+    let (sx, sy) = coordinates::norm_to_screen(coord);
 
     canvas.set_draw_color(color);
     if fill {
@@ -76,20 +29,13 @@ pub fn rectangle(
 
 pub fn square(
     canvas: &mut Canvas<sdl2::video::Window>,
-    coord: Coordinates,
+    coord: coordinates::Vec2,
     size: u32,
     color: Color,
     fill: bool,
 ) {
     rectangle(canvas, coord, size, size, color, fill);
 }
-
-/* Symetric:
- * xa = ix - x & ya = iy - y
- * xa' = xa + 2(r - xa)
- * xa' = 2r - xa
- * xa' = 2r - ix + x
- */
 
 fn circle_equation(x: i32, y: i32, a: i32, b: i32, r: i32) -> i32 {
     let r2 = r * r;
@@ -101,12 +47,12 @@ fn circle_equation(x: i32, y: i32, a: i32, b: i32, r: i32) -> i32 {
  */
 pub fn circle(
     canvas: &mut Canvas<sdl2::video::Window>,
-    coord: Coordinates,
+    coord: coordinates::Vec2,
     radius: i32,
     color: Color,
     fill: bool,
 ) {
-    let (x, y) = norm_to_screen(coord);
+    let (x, y) = coordinates::norm_to_screen(coord);
     let begin_y = y - radius;
     let end_y = y;
     let mut loop_x;
@@ -123,7 +69,7 @@ pub fn circle(
                     let dy = y - iy;
                     rectangle(
                         canvas,
-                        Coordinates::Screen(ix, iy),
+                        coordinates::Vec2::Screen(ix, iy),
                         2 * dx as u32,
                         1,
                         color,
@@ -131,7 +77,7 @@ pub fn circle(
                     );
                     rectangle(
                         canvas,
-                        Coordinates::Screen(ix, y + dy),
+                        coordinates::Vec2::Screen(ix, y + dy),
                         2 * dx as u32,
                         1,
                         color,
@@ -154,10 +100,10 @@ pub fn circle(
                     while circle_equation(ix, norm_iy, norm_x, norm_y, radius) <= 2*radius {
                         let dx = x - ix;
                         let dy = y - iy;
-                        square(canvas, Coordinates::Screen(ix, iy), 1, color, true);
-                        square(canvas, Coordinates::Screen(ix, y + dy), 1, color, true);
-                        square(canvas, Coordinates::Screen(x + dx, iy), 1, color, true);
-                        square(canvas, Coordinates::Screen(x + dx, y + dy), 1, color, true);
+                        square(canvas, coordinates::Vec2::Screen(ix, iy), 1, color, true);
+                        square(canvas, coordinates::Vec2::Screen(ix, y + dy), 1, color, true);
+                        square(canvas, coordinates::Vec2::Screen(x + dx, iy), 1, color, true);
+                        square(canvas, coordinates::Vec2::Screen(x + dx, y + dy), 1, color, true);
                         ix -= 1;
                     }
                     ix = ix_save;
@@ -170,11 +116,15 @@ pub fn circle(
     }
 }
 
+fn line(canvas: &mut Canvas<sdl2::video::Window>, point1: coordinates::Vec2, point2: coordinates::Vec2) {
+    todo!();
+}
+
 fn triangle(
     canvas: &mut Canvas<sdl2::video::Window>,
-    point1: Coordinates,
-    point2: Coordinates,
-    point3: Coordinates,
+    point1: coordinates::Vec2,
+    point2: coordinates::Vec2,
+    point3: coordinates::Vec2,
 ) {
     todo!();
 }
