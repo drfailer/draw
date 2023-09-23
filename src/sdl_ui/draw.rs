@@ -91,9 +91,13 @@ pub fn square(
  * xa' = 2r - ix + x
  */
 
+fn circle_equation(x: i32, y: i32, a: i32, b: i32, r: i32) -> i32 {
+    let r2 = r * r;
+    return (x - a) * (x - a) + (y - b) * (y - b) - r2;
+}
+
 /**
  * TODO: add fill option
- * TODO: optimize this
  */
 pub fn circle(
     canvas: &mut Canvas<sdl2::video::Window>,
@@ -102,23 +106,38 @@ pub fn circle(
     color: Color,
 ) {
     let (x, y) = norm_to_screen(coord);
-    let radius2 = (radius * radius) as i32;
-    let beginx = x - radius;
-    let endx = x;
-    let beginy = y - radius;
-    let endy = y;
+    let begin_y = y - radius;
+    let end_y = y;
+    let mut loop_x;
+    let mut ix = x;
 
-    for iy in beginy..=endy {
-        for ix in beginx..=endx {
-            let (nix, niy) = (ix, -iy + HEIGHT as i32);
-            let (nx, ny) = (x, -y + HEIGHT as i32);
-            if (nix - nx) * (nix - nx) + (niy - ny) * (niy - ny) - radius2 <= 0 {
+    for iy in begin_y..=end_y {
+        loop_x = true;
+        while loop_x && ix >= x - radius as i32 {
+            let (norm_ix, norm_iy) = (ix, -iy + HEIGHT as i32);
+            let (norm_x, norm_y) = (x, -y + HEIGHT as i32);
+            if circle_equation(norm_ix, norm_iy, norm_x, norm_y, radius) >= 0 {
                 let dx = x - ix;
                 let dy = y - iy;
-                square(canvas, Coordinates::Screen(ix, iy), 1, color, true);
-                square(canvas, Coordinates::Screen(x + dx, iy), 1, color, true);
-                square(canvas, Coordinates::Screen(ix, y + dy), 1, color, true);
-                square(canvas, Coordinates::Screen(x + dx, y + dy), 1, color, true);
+                rectangle(
+                    canvas,
+                    Coordinates::Screen(ix, iy),
+                    2 * dx as u32,
+                    1,
+                    color,
+                    true,
+                );
+                rectangle(
+                    canvas,
+                    Coordinates::Screen(ix, y + dy),
+                    2 * dx as u32,
+                    1,
+                    color,
+                    true,
+                );
+                loop_x = false;
+            } else {
+                ix -= 1;
             }
         }
     }
