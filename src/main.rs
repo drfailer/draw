@@ -4,7 +4,7 @@ mod sdl_ui;
 
 use sdl2::pixels::Color;
 use std::time::Duration;
-use sdl_ui::coordinates;
+use sdl_ui::{coordinates, ui::{WIDTH, HEIGHT}};
 
 pub fn main() {
     let mut ui = sdl_ui::ui::UI::new("Drawing");
@@ -31,8 +31,11 @@ pub fn main() {
         for radius in (1..100).step_by(5) {
             sdl_ui::draw::circle(&mut ui.canvas, coordinates::Vec2::Screen(200, 200), radius, Color::RGB(255, 255, 255), false);
         }
-        // sdl_ui::draw::circle(&mut ui.canvas, Coordinates::Screen(200, 200), 19, Color::RGB(0, 0, 0));
         sdl_ui::draw::circle(&mut ui.canvas, coordinates::Vec2::Norm(-1., -1.), 20, Color::RGB(255, 255, 255), false);
+        sdl_ui::draw::line(&mut ui.canvas, coordinates::Vec2::Norm(0., 0.), coordinates::Vec2::Norm(-1., 1.), Color::RGB(0, 255, 0));
+        sdl_ui::draw::line(&mut ui.canvas, coordinates::Vec2::Norm(0., 0.), coordinates::Vec2::Norm(1., 1.), Color::RGB(0, 0, 255));
+        sdl_ui::draw::line(&mut ui.canvas, coordinates::Vec2::Norm(0., 0.), coordinates::Vec2::Norm(0.25, 1.), Color::RGB(0, 255, 255));
+        sdl_ui::draw::triangle(&mut ui.canvas, coordinates::Vec2::Norm(-0.5, -0.5), coordinates::Vec2::Norm(0.5, -0.5), coordinates::Vec2::Norm(0., 0.5), Color::RGB(255, 0, 0), false);
 
         for event in ui.sdl.event_pump().unwrap().poll_iter() {
             ui.event_handler(event);

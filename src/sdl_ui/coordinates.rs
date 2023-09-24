@@ -9,6 +9,7 @@ use super::ui::{HEIGHT, WIDTH};
 /*                                     2D                                     */
 /******************************************************************************/
 
+#[derive(Copy, Clone)]
 pub enum Vec2 {
     Screen(i32, i32),
     Norm(f32, f32),
