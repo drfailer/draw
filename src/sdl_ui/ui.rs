@@ -2,7 +2,7 @@ use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 
 pub const WIDTH: u32 = 800;
-pub const HEIGHT: u32 = 800;
+pub const HEIGHT: u32 = 600;
 
 pub struct UI {
     pub sdl: sdl2::Sdl,

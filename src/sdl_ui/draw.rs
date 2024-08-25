@@ -2,7 +2,10 @@ use std::mem::swap;
 
 use sdl2::{pixels::Color, rect::Rect, render::Canvas};
 
-use super::{ui::HEIGHT , coordinates::{self, norm_to_screen, screen_to_norm}};
+use super::{
+    coordinates::{self, norm_to_screen, screen_to_norm},
+    ui::HEIGHT,
+};
 
 pub fn rectangle(
     canvas: &mut Canvas<sdl2::video::Window>,
@@ -99,13 +102,31 @@ pub fn circle(
                 let (norm_x, norm_y) = (x, -y + HEIGHT as i32);
                 if circle_equation(norm_ix, norm_iy, norm_x, norm_y, radius) >= 0 {
                     let ix_save = ix;
-                    while circle_equation(ix, norm_iy, norm_x, norm_y, radius) <= 2*radius {
+                    while circle_equation(ix, norm_iy, norm_x, norm_y, radius) <= 2 * radius {
                         let dx = x - ix;
                         let dy = y - iy;
                         square(canvas, coordinates::Vec2::Screen(ix, iy), 1, color, true);
-                        square(canvas, coordinates::Vec2::Screen(ix, y + dy), 1, color, true);
-                        square(canvas, coordinates::Vec2::Screen(x + dx, iy), 1, color, true);
-                        square(canvas, coordinates::Vec2::Screen(x + dx, y + dy), 1, color, true);
+                        square(
+                            canvas,
+                            coordinates::Vec2::Screen(ix, y + dy),
+                            1,
+                            color,
+                            true,
+                        );
+                        square(
+                            canvas,
+                            coordinates::Vec2::Screen(x + dx, iy),
+                            1,
+                            color,
+                            true,
+                        );
+                        square(
+                            canvas,
+                            coordinates::Vec2::Screen(x + dx, y + dy),
+                            1,
+                            color,
+                            true,
+                        );
                         ix -= 1;
                     }
                     ix = ix_save;
@@ -118,7 +139,12 @@ pub fn circle(
     }
 }
 
-pub fn line(canvas: &mut Canvas<sdl2::video::Window>, point1: coordinates::Vec2, point2: coordinates::Vec2, color: Color) {
+pub fn line(
+    canvas: &mut Canvas<sdl2::video::Window>,
+    point1: coordinates::Vec2,
+    point2: coordinates::Vec2,
+    color: Color,
+) {
     let (mut screen_x1, mut screen_y1) = norm_to_screen(point1);
     let (mut screen_x2, mut screen_y2) = norm_to_screen(point2);
     let mut diffx = screen_x2 - screen_x1;
@@ -135,7 +161,7 @@ pub fn line(canvas: &mut Canvas<sdl2::video::Window>, point1: coordinates::Vec2,
         }
         let direction = diffy as f32 / diffx as f32;
         for ix in screen_x1..=screen_x2 {
-            let iy = (direction*(ix - screen_x1) as f32) as i32 + screen_y1;
+            let iy = (direction * (ix - screen_x1) as f32) as i32 + screen_y1;
             square(canvas, coordinates::Vec2::Screen(ix, iy), 1, color, true);
         }
     } else {
@@ -145,19 +171,19 @@ pub fn line(canvas: &mut Canvas<sdl2::video::Window>, point1: coordinates::Vec2,
             diffx = -diffx;
             diffy = -diffy;
         }
-        if diffx == 0 {
-            rectangle(canvas, coordinates::Vec2::Screen(screen_x2, screen_y2), 1, diffy as u32, color, false);
-        } else {
-            let direction = diffx as f32 / diffy as f32;
-            for iy in screen_y1..=screen_y2 {
-                let ix = (direction*(iy - screen_y1) as f32) as i32 + screen_x1;
-                square(canvas, coordinates::Vec2::Screen(ix, iy), 1, color, true);
-            }
+        let direction = diffx as f32 / diffy as f32;
+        for iy in screen_y1..=screen_y2 {
+            let ix = (direction * (iy - screen_y1) as f32) as i32 + screen_x1;
+            square(canvas, coordinates::Vec2::Screen(ix, iy), 1, color, true);
         }
     }
 }
 
-fn sort_points_on_y(point1: (&mut i32, &mut i32), point2: (&mut i32, &mut i32), point3: (&mut i32, &mut i32)) {
+fn sort_points_on_y(
+    point1: (&mut i32, &mut i32),
+    point2: (&mut i32, &mut i32),
+    point3: (&mut i32, &mut i32),
+) {
     let (x1, y1) = point1;
     let (x2, y2) = point2;
     let (x3, y3) = point3;
@@ -185,17 +211,48 @@ pub fn triangle(
     fill: bool,
 ) {
     if fill {
-        todo!("fill mode doesn't work for triangle at this point.");
-        // let (mut x1, mut y1) = norm_to_screen(point1);
-        // let (mut x2, mut y2) = norm_to_screen(point2);
-        // let (mut x3, mut y3) = norm_to_screen(point3);
-        // sort_points_on_y((&mut x1, &mut y1), (&mut x2, &mut y2), (&mut x3, &mut y3));
+        let (mut x1, mut y1) = norm_to_screen(point1);
+        let (mut x2, mut y2) = norm_to_screen(point2);
+        let (mut x3, mut y3) = norm_to_screen(point3);
+        sort_points_on_y((&mut x1, &mut y1), (&mut x2, &mut y2), (&mut x3, &mut y3));
 
-        // for iy in y1..=y2 {
-        // }
+        // coeficients
+        let mut diffx13 = x1 - x3;
+        let mut diffy13 = y1 - y3;
+        let mut diffx12 = x1 - x2;
+        let mut diffy12 = y1 - y2;
+        let mut diffx23 = x2 - x3;
+        let mut diffy23 = y2 - y3;
+        let direction13 = diffx13 as f32 / diffy13 as f32;
+        let direction12 = diffx12 as f32 / diffy12 as f32;
+        let direction23 = diffx23 as f32 / diffy23 as f32;
+
+        // first half triangle
+        for iy in y1..=y2 {
+            let ix1 = (direction13 * (iy - y1) as f32) as i32 + x1;
+            let ix2 = (direction12 * (iy - y2) as f32) as i32 + x2;
+            line(
+                canvas,
+                coordinates::Vec2::Screen(ix1, iy),
+                coordinates::Vec2::Screen(ix2, iy),
+                color,
+            );
+        }
+
+        // second half triangle
+        for iy in y2..=y3 {
+            let ix2 = (direction13 * (iy - y1) as f32) as i32 + x1;
+            let ix3 = (direction23 * (iy - y3) as f32) as i32 + x3;
+            line(
+                canvas,
+                coordinates::Vec2::Screen(ix2, iy),
+                coordinates::Vec2::Screen(ix3, iy),
+                color,
+            );
+        }
     } else {
-        line(canvas, point1.clone(), point2.clone(), color);
-        line(canvas, point1.clone(), point3.clone(), color);
-        line(canvas, point2.clone(), point3.clone(), color);
+        line(canvas, point1, point2, color);
+        line(canvas, point1, point3, color);
+        line(canvas, point2, point3, color);
     }
 }
