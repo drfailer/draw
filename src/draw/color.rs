@@ -13,7 +13,7 @@ fn hex_to_rgb(hex: &str) -> u8 {
     return 16 * n1 + n2;
 }
 
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct Color {
     pub r: u8,
     pub g: u8,
@@ -33,7 +33,17 @@ impl Color {
         Self {
             r: hex_to_rgb(r_hex),
             g: hex_to_rgb(g_hex),
-            b: hex_to_rgb(b_hex)
+            b: hex_to_rgb(b_hex),
         }
     }
 }
+
+pub const BLACK: Color = Color { r: 0, g: 0, b: 0 };
+pub const WHITE: Color = Color {
+    r: 255,
+    g: 255,
+    b: 255,
+};
+pub const RED: Color = Color { r: 255, g: 0, b: 0 };
+pub const GREEN: Color = Color { r: 0, g: 255, b: 0 };
+pub const BLUE: Color = Color { r: 0, g: 0, b: 255 };

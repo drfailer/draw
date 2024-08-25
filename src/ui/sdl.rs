@@ -1,4 +1,5 @@
-use sdl2::{event::Event, keyboard::Keycode, pixels::Color, rect::Rect};
+use super::ui::UI;
+use sdl2::{event::Event, keyboard::Keycode, rect::Rect};
 
 pub const WIDTH: u32 = 800;
 pub const HEIGHT: u32 = 600;
@@ -44,35 +45,46 @@ impl SdlUi {
         }
     }
 
-    pub fn handl_events(&mut self) {
+    pub fn present(&mut self) {
+        self.canvas.present();
+    }
+}
+
+impl UI for SdlUi {
+    fn handl_events(&mut self) {
         for event in self.sdl.event_pump().unwrap().poll_iter() {
             self.event_handler(event);
         }
     }
 
-    pub fn present(&mut self) {
-        self.canvas.present();
-    }
-
-    pub fn clear(&mut self) {
+    fn clear(&mut self, color: crate::draw::color::Color) {
+        self.set_color(color);
         self.canvas.clear();
     }
 
-    pub fn set_color(&mut self, color: Color) {
-        self.canvas.set_draw_color(color);
+    fn set_color(&mut self, color: crate::draw::color::Color) {
+        self.canvas.set_draw_color(sdl2::pixels::Color::RGB(color.r, color.g, color.b));
     }
 
-    pub fn draw_rect(&mut self, x: i32, y: i32, width: u32, height: u32) {
+    fn draw_rect(&mut self, x: i32, y: i32, width: u32, height: u32) {
         self.canvas
             .fill_rect(Rect::new(x, y, width, height))
             .unwrap();
     }
 
-    pub fn draw_pixel(&mut self, x: i32, y: i32) {
+    fn draw_pixel(&mut self, x: i32, y: i32) {
         self.draw_rect(x, y, 1, 1);
     }
 
-    pub fn run(&self) -> bool {
+    fn run(&self) -> bool {
         return self.run;
+    }
+
+    fn height(&self) -> u32 {
+        return HEIGHT;
+    }
+
+    fn width(&self) -> u32 {
+        return WIDTH;
     }
 }
