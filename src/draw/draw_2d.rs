@@ -2,9 +2,9 @@ use std::mem::swap;
 
 use sdl2::pixels::Color;
 
-use crate::coordinates::{Vec2, norm_to_screen, screen_to_norm};
+use crate::coordinates::{Vec2, norm_to_screen};
 
-use crate::ui::sdl::{SdlUi, HEIGHT, WIDTH};
+use crate::ui::sdl::{SdlUi, HEIGHT};
 
 pub fn rectangle(
     ui: &mut SdlUi,
@@ -184,12 +184,12 @@ pub fn triangle(
         sort_points_on_y((&mut x1, &mut y1), (&mut x2, &mut y2), (&mut x3, &mut y3));
 
         // coeficients
-        let mut diffx13 = x1 - x3;
-        let mut diffy13 = y1 - y3;
-        let mut diffx12 = x1 - x2;
-        let mut diffy12 = y1 - y2;
-        let mut diffx23 = x2 - x3;
-        let mut diffy23 = y2 - y3;
+        let diffx13 = x1 - x3;
+        let diffy13 = y1 - y3;
+        let diffx12 = x1 - x2;
+        let diffy12 = y1 - y2;
+        let diffx23 = x2 - x3;
+        let diffy23 = y2 - y3;
         let direction13 = diffx13 as f32 / diffy13 as f32;
         let direction12 = diffx12 as f32 / diffy12 as f32;
         let direction23 = diffx23 as f32 / diffy23 as f32;

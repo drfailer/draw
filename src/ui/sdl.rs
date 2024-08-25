@@ -1,4 +1,4 @@
-use sdl2::{event::Event, keyboard::Keycode, pixels::Color, rect::Rect, render::Canvas};
+use sdl2::{event::Event, keyboard::Keycode, pixels::Color, rect::Rect};
 
 pub const WIDTH: u32 = 800;
 pub const HEIGHT: u32 = 600;

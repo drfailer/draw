@@ -1,16 +1,13 @@
 extern crate sdl2;
 
-mod ui;
 mod draw;
+mod ui;
 
-use sdl2::pixels::Color;
-use ui::{
-    sdl,
-    sdl::{HEIGHT, SdlUi, WIDTH},
-};
 use draw::coordinates;
 use draw::draw_2d;
+use sdl2::pixels::Color;
 use std::time::Duration;
+use ui::sdl::SdlUi;
 
 pub fn main() {
     let mut ui = SdlUi::new("Drawing");
