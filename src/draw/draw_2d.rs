@@ -1,45 +1,34 @@
 use std::mem::swap;
 
-use sdl2::{pixels::Color, rect::Rect, render::Canvas};
+use sdl2::pixels::Color;
 
-use super::{
-    coordinates::{self, norm_to_screen, screen_to_norm},
-    ui::HEIGHT,
-};
+use crate::coordinates::{Vec2, norm_to_screen, screen_to_norm};
+
+use crate::ui::sdl::{SdlUi, HEIGHT, WIDTH};
 
 pub fn rectangle(
-    canvas: &mut Canvas<sdl2::video::Window>,
-    coord: coordinates::Vec2,
+    ui: &mut SdlUi,
+    coord: Vec2,
     width: u32,
     height: u32,
     color: Color,
     fill: bool,
 ) {
-    let (sx, sy) = coordinates::norm_to_screen(coord);
+    let (sx, sy) = norm_to_screen(coord);
 
-    canvas.set_draw_color(color);
+    ui.set_color(color);
     if fill {
-        canvas.fill_rect(Rect::new(sx, sy, width, height)).unwrap();
+        ui.draw_rect(sx, sy, width, height);
     } else {
-        canvas.fill_rect(Rect::new(sx, sy, width, 1)).unwrap();
-        canvas
-            .fill_rect(Rect::new(sx, sy + height as i32, width, 1))
-            .unwrap();
-        canvas.fill_rect(Rect::new(sx, sy, 1, height)).unwrap();
-        canvas
-            .fill_rect(Rect::new(sx + width as i32, sy, 1, height))
-            .unwrap();
+        ui.draw_rect(sx, sy, width, 1);
+        ui.draw_rect(sx, sy + height as i32, width, 1);
+        ui.draw_rect(sx, sy, 1, height);
+        ui.draw_rect(sx + width as i32, sy, 1, height);
     }
 }
 
-pub fn square(
-    canvas: &mut Canvas<sdl2::video::Window>,
-    coord: coordinates::Vec2,
-    size: u32,
-    color: Color,
-    fill: bool,
-) {
-    rectangle(canvas, coord, size, size, color, fill);
+pub fn square(ui: &mut SdlUi, coord: Vec2, size: u32, color: Color, fill: bool) {
+    rectangle(ui, coord, size, size, color, fill);
 }
 
 fn circle_equation(x: i32, y: i32, a: i32, b: i32, r: i32) -> i32 {
@@ -50,14 +39,8 @@ fn circle_equation(x: i32, y: i32, a: i32, b: i32, r: i32) -> i32 {
 /**
  * TODO: add fill option
  */
-pub fn circle(
-    canvas: &mut Canvas<sdl2::video::Window>,
-    coord: coordinates::Vec2,
-    radius: i32,
-    color: Color,
-    fill: bool,
-) {
-    let (x, y) = coordinates::norm_to_screen(coord);
+pub fn circle(ui: &mut SdlUi, coord: Vec2, radius: i32, color: Color, fill: bool) {
+    let (x, y) = norm_to_screen(coord);
     let begin_y = y - radius;
     let end_y = y;
     let mut loop_x;
@@ -73,16 +56,16 @@ pub fn circle(
                     let dx = x - ix;
                     let dy = y - iy;
                     rectangle(
-                        canvas,
-                        coordinates::Vec2::Screen(ix, iy),
+                        ui,
+                        Vec2::Screen(ix, iy),
                         2 * dx as u32,
                         1,
                         color,
                         true,
                     );
                     rectangle(
-                        canvas,
-                        coordinates::Vec2::Screen(ix, y + dy),
+                        ui,
+                        Vec2::Screen(ix, y + dy),
                         2 * dx as u32,
                         1,
                         color,
@@ -105,24 +88,12 @@ pub fn circle(
                     while circle_equation(ix, norm_iy, norm_x, norm_y, radius) <= 2 * radius {
                         let dx = x - ix;
                         let dy = y - iy;
-                        square(canvas, coordinates::Vec2::Screen(ix, iy), 1, color, true);
+                        square(ui, Vec2::Screen(ix, iy), 1, color, true);
+                        square(ui, Vec2::Screen(ix, y + dy), 1, color, true);
+                        square(ui, Vec2::Screen(x + dx, iy), 1, color, true);
                         square(
-                            canvas,
-                            coordinates::Vec2::Screen(ix, y + dy),
-                            1,
-                            color,
-                            true,
-                        );
-                        square(
-                            canvas,
-                            coordinates::Vec2::Screen(x + dx, iy),
-                            1,
-                            color,
-                            true,
-                        );
-                        square(
-                            canvas,
-                            coordinates::Vec2::Screen(x + dx, y + dy),
+                            ui,
+                            Vec2::Screen(x + dx, y + dy),
                             1,
                             color,
                             true,
@@ -139,16 +110,12 @@ pub fn circle(
     }
 }
 
-pub fn line(
-    canvas: &mut Canvas<sdl2::video::Window>,
-    point1: coordinates::Vec2,
-    point2: coordinates::Vec2,
-    color: Color,
-) {
+pub fn line(ui: &mut SdlUi, point1: Vec2, point2: Vec2, color: Color) {
     let (mut screen_x1, mut screen_y1) = norm_to_screen(point1);
     let (mut screen_x2, mut screen_y2) = norm_to_screen(point2);
     let mut diffx = screen_x2 - screen_x1;
     let mut diffy = screen_y2 - screen_y1;
+    ui.set_color(color);
 
     // if diffy.abs() <= diffx.abs() we iterate on x, otherwise we iterate on y
     // this is done to avoid drawing broken lines
@@ -162,7 +129,7 @@ pub fn line(
         let direction = diffy as f32 / diffx as f32;
         for ix in screen_x1..=screen_x2 {
             let iy = (direction * (ix - screen_x1) as f32) as i32 + screen_y1;
-            square(canvas, coordinates::Vec2::Screen(ix, iy), 1, color, true);
+            ui.draw_pixel(ix, iy);
         }
     } else {
         if screen_y1 > screen_y2 {
@@ -174,7 +141,7 @@ pub fn line(
         let direction = diffx as f32 / diffy as f32;
         for iy in screen_y1..=screen_y2 {
             let ix = (direction * (iy - screen_y1) as f32) as i32 + screen_x1;
-            square(canvas, coordinates::Vec2::Screen(ix, iy), 1, color, true);
+            ui.draw_pixel(ix, iy);
         }
     }
 }
@@ -203,10 +170,10 @@ fn sort_points_on_y(
 }
 
 pub fn triangle(
-    canvas: &mut Canvas<sdl2::video::Window>,
-    point1: coordinates::Vec2,
-    point2: coordinates::Vec2,
-    point3: coordinates::Vec2,
+    ui: &mut SdlUi,
+    point1: Vec2,
+    point2: Vec2,
+    point3: Vec2,
     color: Color,
     fill: bool,
 ) {
@@ -232,9 +199,9 @@ pub fn triangle(
             let ix1 = (direction13 * (iy - y1) as f32) as i32 + x1;
             let ix2 = (direction12 * (iy - y2) as f32) as i32 + x2;
             line(
-                canvas,
-                coordinates::Vec2::Screen(ix1, iy),
-                coordinates::Vec2::Screen(ix2, iy),
+                ui,
+                Vec2::Screen(ix1, iy),
+                Vec2::Screen(ix2, iy),
                 color,
             );
         }
@@ -244,15 +211,15 @@ pub fn triangle(
             let ix2 = (direction13 * (iy - y1) as f32) as i32 + x1;
             let ix3 = (direction23 * (iy - y3) as f32) as i32 + x3;
             line(
-                canvas,
-                coordinates::Vec2::Screen(ix2, iy),
-                coordinates::Vec2::Screen(ix3, iy),
+                ui,
+                Vec2::Screen(ix2, iy),
+                Vec2::Screen(ix3, iy),
                 color,
             );
         }
     } else {
-        line(canvas, point1, point2, color);
-        line(canvas, point1, point3, color);
-        line(canvas, point2, point3, color);
+        line(ui, point1, point2, color);
+        line(ui, point1, point3, color);
+        line(ui, point2, point3, color);
     }
 }

@@ -1,5 +1,5 @@
 
-use super::ui::{HEIGHT, WIDTH};
+use crate::ui::sdl::{HEIGHT, WIDTH};
 
 /*
  * Normalised coordinates are in (-1, 1)
