@@ -7,7 +7,7 @@ use libm::{cos, sin};
  * Normalised coordinates are in (-1, 1)
  */
 
-const DE: f64= 1.;
+const DE: f64 = 1.;
 
 /******************************************************************************/
 /*                                     2D                                     */
@@ -62,7 +62,7 @@ pub fn screen_to_norm2(coord: Vec2) -> (f64, f64) {
 /*                                     3D                                     */
 /******************************************************************************/
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub enum Vec3 {
     Screen(i32, i32, i32),
     Norm(f64, f64, f64),
@@ -95,8 +95,7 @@ pub fn screen_to_norm3(coord: Vec3) -> (f64, f64, f64) {
     };
 }
 
-fn rotate_x(coord: Vec3, angle: f64) -> (f64, f64, f64) {
-    let (x, y, z) = screen_to_norm3(coord);
+fn rotate_x(x: f64, y: f64, z: f64, angle: f64) -> (f64, f64, f64) {
     (
         x,
         y * cos(angle) - z * sin(angle),
@@ -104,8 +103,7 @@ fn rotate_x(coord: Vec3, angle: f64) -> (f64, f64, f64) {
     )
 }
 
-fn rotate_y(coord: Vec3, angle: f64) -> (f64, f64, f64) {
-    let (x, y, z) = screen_to_norm3(coord);
+fn rotate_y(x: f64, y: f64, z: f64, angle: f64) -> (f64, f64, f64) {
     (
         x * cos(angle) + z * sin(angle),
         y,
@@ -113,8 +111,7 @@ fn rotate_y(coord: Vec3, angle: f64) -> (f64, f64, f64) {
     )
 }
 
-fn rotate_z(coord: Vec3, angle: f64) -> (f64, f64, f64) {
-    let (x, y, z) = screen_to_norm3(coord);
+fn rotate_z(x: f64, y: f64, z: f64, angle: f64) -> (f64, f64, f64) {
     (
         x * cos(angle) - y * sin(angle),
         x * sin(angle) + y * cos(angle),
@@ -122,9 +119,18 @@ fn rotate_z(coord: Vec3, angle: f64) -> (f64, f64, f64) {
     )
 }
 
-pub fn rotate(coord: Vec3, angle_x: f64, angle_y: f64, angle_z: f64) -> (f64, f64, f64) {
-    let (x, y, z) = rotate_x(coord, angle_x);
-    let (x, y, z) = rotate_y(Vec3::Norm(x, y, y), angle_y);
-    let (x, y, z) = rotate_z(Vec3::Norm(x, y, y), angle_z);
-    (x, y, z)
+pub fn rotate(
+    barycenter: Vec3,
+    point: &mut Vec3,
+    angle_x: f64,
+    angle_y: f64,
+    angle_z: f64,
+) {
+    let (xbar, ybar, zbar) = screen_to_norm3(barycenter);
+    let (x, y, z) = screen_to_norm3(*point);
+
+    let (x, y, z) = rotate_x(x - xbar, y - ybar, z - zbar, angle_x);
+    let (x, y, z) = rotate_y(x, y, z, angle_y);
+    let (x, y, z) = rotate_z(x, y, z, angle_z);
+    *point = Vec3::Norm(x + xbar, y + ybar, z + zbar);
 }

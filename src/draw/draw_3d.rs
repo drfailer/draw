@@ -1,7 +1,7 @@
 use std::mem::swap;
 
 use super::color::Color;
-use super::coordinates::{norm_to_screen3, screen_to_norm3, rotate, Vec3};
+use super::coordinates::{norm_to_screen3, rotate, screen_to_norm3, Vec3};
 use crate::ui::ui::UI;
 
 pub fn line(ui: &mut impl UI, point1: Vec3, point2: Vec3, color: Color) {
@@ -40,6 +40,21 @@ pub fn line(ui: &mut impl UI, point1: Vec3, point2: Vec3, color: Color) {
     }
 }
 
+fn barycenter3(points: Vec<Vec3>) -> Vec3 {
+    let mut xbar = 0.;
+    let mut ybar = 0.;
+    let mut zbar = 0.;
+    let nb_points = points.len() as f64;
+
+    for point in points {
+        let (xp, yp, zp) = screen_to_norm3(point);
+        xbar += xp;
+        ybar += yp;
+        zbar += zp;
+    }
+    return Vec3::Norm(xbar / nb_points, ybar / nb_points, zbar / nb_points);
+}
+
 pub fn cube(
     ui: &mut impl UI,
     coord: Vec3,
@@ -55,14 +70,33 @@ pub fn cube(
     let height = size as f64 / ui.height() as f64;
     let depth = size as f64 / ratio;
 
-    let point1 = Vec3::Norm(x, y, z);
-    let point2 = Vec3::Norm(x + width, y, z);
-    let point3 = Vec3::Norm(x + width, y - height, z);
-    let point4 = Vec3::Norm(x, y - height, z);
-    let point5 = Vec3::Norm(x, y, z + depth);
-    let point6 = Vec3::Norm(x + width, y, z + depth);
-    let point7 = Vec3::Norm(x + width, y - height, z + depth);
-    let point8 = Vec3::Norm(x, y - height, z + depth);
+    let mut point1 = Vec3::Norm(x, y, z);
+    let mut point2 = Vec3::Norm(x + width, y, z);
+    let mut point3 = Vec3::Norm(x + width, y - height, z);
+    let mut point4 = Vec3::Norm(x, y - height, z);
+    let mut point5 = Vec3::Norm(x, y, z + depth);
+    let mut point6 = Vec3::Norm(x + width, y, z + depth);
+    let mut point7 = Vec3::Norm(x + width, y - height, z + depth);
+    let mut point8 = Vec3::Norm(x, y - height, z + depth);
+
+    let barycenter = barycenter3(vec![
+        point1, point2, point3, point4, point5, point6, point7, point8,
+    ]);
+
+    let mut points = vec![
+        &mut point1,
+        &mut point2,
+        &mut point3,
+        &mut point4,
+        &mut point5,
+        &mut point6,
+        &mut point7,
+        &mut point8,
+    ];
+
+    for point in points {
+        rotate(barycenter, point, angle_x, angle_y, angle_z);
+    }
 
     line(ui, point1, point2, color);
     line(ui, point2, point3, color);
