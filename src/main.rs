@@ -6,10 +6,10 @@ mod ui;
 use draw::color::Color;
 use draw::coordinates;
 use draw::draw_2d;
-use ui::sdl::HEIGHT;
-use ui::sdl::WIDTH;
 use std::time::Duration;
 use ui::sdl::SdlUi;
+use ui::sdl::HEIGHT;
+use ui::sdl::WIDTH;
 use ui::ui::UI;
 
 pub fn draw_2d(ui: &mut SdlUi) {
@@ -80,11 +80,11 @@ pub fn draw_2d(ui: &mut SdlUi) {
     );
 }
 
-fn draw_3d(ui: &mut SdlUi, angle_x: f64, angle_y: f64, angle_z: f64) {
+fn draw_3d(ui: &mut SdlUi, distance: f64, angle_x: f64, angle_y: f64, angle_z: f64) {
     draw::draw_3d::cube(
         ui,
-        coordinates::Vec3::Screen((WIDTH as i32 - 250) / 2, (HEIGHT as i32 - 250) / 2, 1),
-        // coordinates::Vec3::Norm(-0.5, 0.5, 1.0),
+        // coordinates::Vec3::Screen((WIDTH as i32 - 250) / 2, (HEIGHT as i32 - 250) / 2, 1),
+        coordinates::Vec3::Norm(-0.5, 0.5, distance),
         // coordinates::Vec3::Norm(0., 0., 2.0),
         500,
         angle_x,
@@ -102,12 +102,14 @@ pub fn main() {
     let mut angle_x: f64 = 0.;
     let mut angle_y: f64 = 0.;
     let mut angle_z: f64 = 0.;
+    let mut distance: f64 = 1.;
 
     while ui.run() {
         // draw_2d(&mut ui);
         ui.clear(draw::color::BLACK);
-        draw_3d(&mut ui, angle_x, angle_y, angle_z);
-        // angle_x += 0.01;
+        distance = libm::cos(angle_y) + 2.0;
+        draw_3d(&mut ui, distance, angle_x, angle_y, angle_z);
+        angle_x += 0.01;
         angle_y += 0.01;
         // angle_z += 0.01;
         ui.handl_events();
