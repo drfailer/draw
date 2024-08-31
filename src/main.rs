@@ -10,7 +10,7 @@ use std::time::Duration;
 use ui::sdl::SdlUi;
 use draw::color::Color;
 
-pub fn draw(ui: &mut SdlUi) {
+pub fn draw2_d(ui: &mut SdlUi) {
     draw_2d::rectangle(
         ui,
         coordinates::Vec2::Screen(20, 20),
@@ -85,7 +85,7 @@ pub fn main() {
     ui.present();
 
     while ui.run() {
-        draw(&mut ui);
+        draw2_d(&mut ui);
         ui.handl_events();
         ui.present();
         std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
