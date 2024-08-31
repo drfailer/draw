@@ -1,11 +1,11 @@
 use std::mem::swap;
 
 use super::color::Color;
-use super::coordinates::{norm_to_screen, Vec2};
+use super::coordinates::{norm_to_screen2, Vec2};
 use crate::ui::ui::UI;
 
 pub fn rectangle(ui: &mut impl UI, coord: Vec2, width: u32, height: u32, color: Color, fill: bool) {
-    let (sx, sy) = norm_to_screen(coord);
+    let (sx, sy) = norm_to_screen2(coord);
 
     ui.set_color(color);
     if fill {
@@ -31,7 +31,7 @@ fn circle_equation(x: i32, y: i32, a: i32, b: i32, r: i32) -> i32 {
  * TODO: add fill option
  */
 pub fn circle(ui: &mut impl UI, coord: Vec2, radius: i32, color: Color, fill: bool) {
-    let (x, y) = norm_to_screen(coord);
+    let (x, y) = norm_to_screen2(coord);
     let begin_y = y - radius;
     let end_y = y;
     let mut loop_x;
@@ -82,8 +82,8 @@ pub fn circle(ui: &mut impl UI, coord: Vec2, radius: i32, color: Color, fill: bo
 }
 
 pub fn line(ui: &mut impl UI, point1: Vec2, point2: Vec2, color: Color) {
-    let (mut screen_x1, mut screen_y1) = norm_to_screen(point1);
-    let (mut screen_x2, mut screen_y2) = norm_to_screen(point2);
+    let (mut screen_x1, mut screen_y1) = norm_to_screen2(point1);
+    let (mut screen_x2, mut screen_y2) = norm_to_screen2(point2);
     let mut diffx = screen_x2 - screen_x1;
     let mut diffy = screen_y2 - screen_y1;
     ui.set_color(color);
@@ -97,9 +97,9 @@ pub fn line(ui: &mut impl UI, point1: Vec2, point2: Vec2, color: Color) {
             diffx = -diffx;
             diffy = -diffy;
         }
-        let direction = diffy as f32 / diffx as f32;
+        let direction = diffy as f64 / diffx as f64;
         for ix in screen_x1..=screen_x2 {
-            let iy = (direction * (ix - screen_x1) as f32) as i32 + screen_y1;
+            let iy = (direction * (ix - screen_x1) as f64) as i32 + screen_y1;
             ui.draw_pixel(ix, iy);
         }
     } else {
@@ -109,9 +109,9 @@ pub fn line(ui: &mut impl UI, point1: Vec2, point2: Vec2, color: Color) {
             diffx = -diffx;
             diffy = -diffy;
         }
-        let direction = diffx as f32 / diffy as f32;
+        let direction = diffx as f64 / diffy as f64;
         for iy in screen_y1..=screen_y2 {
-            let ix = (direction * (iy - screen_y1) as f32) as i32 + screen_x1;
+            let ix = (direction * (iy - screen_y1) as f64) as i32 + screen_x1;
             ui.draw_pixel(ix, iy);
         }
     }
@@ -149,9 +149,9 @@ pub fn triangle(
     fill: bool,
 ) {
     if fill {
-        let (mut x1, mut y1) = norm_to_screen(point1);
-        let (mut x2, mut y2) = norm_to_screen(point2);
-        let (mut x3, mut y3) = norm_to_screen(point3);
+        let (mut x1, mut y1) = norm_to_screen2(point1);
+        let (mut x2, mut y2) = norm_to_screen2(point2);
+        let (mut x3, mut y3) = norm_to_screen2(point3);
         sort_points_on_y((&mut x1, &mut y1), (&mut x2, &mut y2), (&mut x3, &mut y3));
 
         // coeficients
@@ -161,21 +161,21 @@ pub fn triangle(
         let diffy12 = y1 - y2;
         let diffx23 = x2 - x3;
         let diffy23 = y2 - y3;
-        let direction13 = diffx13 as f32 / diffy13 as f32;
-        let direction12 = diffx12 as f32 / diffy12 as f32;
-        let direction23 = diffx23 as f32 / diffy23 as f32;
+        let direction13 = diffx13 as f64 / diffy13 as f64;
+        let direction12 = diffx12 as f64 / diffy12 as f64;
+        let direction23 = diffx23 as f64 / diffy23 as f64;
 
         // first half triangle
         for iy in y1..=y2 {
-            let ix1 = (direction13 * (iy - y1) as f32) as i32 + x1;
-            let ix2 = (direction12 * (iy - y2) as f32) as i32 + x2;
+            let ix1 = (direction13 * (iy - y1) as f64) as i32 + x1;
+            let ix2 = (direction12 * (iy - y2) as f64) as i32 + x2;
             line(ui, Vec2::Screen(ix1, iy), Vec2::Screen(ix2, iy), color);
         }
 
         // second half triangle
         for iy in y2..=y3 {
-            let ix2 = (direction13 * (iy - y1) as f32) as i32 + x1;
-            let ix3 = (direction23 * (iy - y3) as f32) as i32 + x3;
+            let ix2 = (direction13 * (iy - y1) as f64) as i32 + x1;
+            let ix3 = (direction23 * (iy - y3) as f64) as i32 + x3;
             line(ui, Vec2::Screen(ix2, iy), Vec2::Screen(ix3, iy), color);
         }
     } else {

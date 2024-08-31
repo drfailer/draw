@@ -3,14 +3,14 @@ extern crate sdl2;
 mod draw;
 mod ui;
 
+use draw::color::Color;
 use draw::coordinates;
 use draw::draw_2d;
-use ui::ui::UI;
 use std::time::Duration;
 use ui::sdl::SdlUi;
-use draw::color::Color;
+use ui::ui::UI;
 
-pub fn draw2_d(ui: &mut SdlUi) {
+pub fn draw_2d(ui: &mut SdlUi) {
     draw_2d::rectangle(
         ui,
         coordinates::Vec2::Screen(20, 20),
@@ -78,6 +78,20 @@ pub fn draw2_d(ui: &mut SdlUi) {
     );
 }
 
+fn draw_3d(ui: &mut SdlUi) {
+    draw::draw_3d::cube(
+        ui,
+        // coordinates::Vec3::Screen(500, 500, 2),
+        coordinates::Vec3::Norm(-0.5, 0.5, 2.0),
+        // coordinates::Vec3::Norm(0., 0., 2.0),
+        500,
+        0.0,
+        0.0,
+        0.0,
+        draw::color::WHITE,
+    );
+}
+
 pub fn main() {
     let mut ui = SdlUi::new("Drawing");
     ui.set_color(Color::rgb(0, 0, 0));
@@ -85,7 +99,8 @@ pub fn main() {
     ui.present();
 
     while ui.run() {
-        draw2_d(&mut ui);
+        // draw_2d(&mut ui);
+        draw_3d(&mut ui);
         ui.handl_events();
         ui.present();
         std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));

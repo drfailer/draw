@@ -3,6 +3,9 @@ name = "draw"
 version = "0.1.0"
 edition = "2021"
 
+[dependencies]
+libm = "0.2.8"
+
 [dependencies.sdl2]
 version = "0.35"
 default-features = false
