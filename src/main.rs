@@ -4,7 +4,7 @@ mod draw;
 mod ui;
 
 use draw::color::Color;
-use draw::coordinates::{c2::Vec2, c3::Vec3};
+use draw::coordinates::{c2::ScreenCoord, c3::Vec3};
 use draw::draw_2d;
 use std::time::Duration;
 use ui::sdl::SdlUi;
@@ -13,7 +13,7 @@ use ui::ui::UI;
 pub fn draw_2d(ui: &mut SdlUi) {
     draw_2d::rectangle(
         ui,
-        Vec2::Screen(20, 20),
+        ScreenCoord(20, 20),
         80,
         40,
         Color::rgb(255, 255, 255),
@@ -21,7 +21,7 @@ pub fn draw_2d(ui: &mut SdlUi) {
     );
     draw_2d::square(
         ui,
-        Vec2::Screen(180, 180),
+        ScreenCoord(180, 180),
         40,
         Color::rgb(255, 0, 0),
         false,
@@ -29,7 +29,7 @@ pub fn draw_2d(ui: &mut SdlUi) {
     for radius in (1..100).step_by(5) {
         draw_2d::circle(
             ui,
-            Vec2::Screen(200, 200),
+            ScreenCoord(200, 200),
             radius,
             Color::rgb(255, 255, 255),
             false,
@@ -37,35 +37,35 @@ pub fn draw_2d(ui: &mut SdlUi) {
     }
     draw_2d::line(
         ui,
-        Vec2::Screen(0, 0),
-        Vec2::Screen(0, ui.height() as i32),
+        ScreenCoord(0, 0),
+        ScreenCoord(0, ui.height() as i32),
         Color::rgb(0, 255, 0),
     );
     draw_2d::line(
         ui,
-        Vec2::Screen(0, 0),
-        Vec2::Screen(ui.width() as i32, ui.height() as i32),
+        ScreenCoord(0, 0),
+        ScreenCoord(ui.width() as i32, ui.height() as i32),
         Color::rgb(0, 0, 255),
     );
     draw_2d::line(
         ui,
-        Vec2::Screen(0, 0),
-        Vec2::Screen(250, ui.height() as i32),
+        ScreenCoord(0, 0),
+        ScreenCoord(250, ui.height() as i32),
         Color::rgb(0, 255, 255),
     );
     draw_2d::triangle(
         ui,
-        Vec2::Screen(100, 100),
-        Vec2::Screen(200, 500),
-        Vec2::Screen(50, 200),
+        ScreenCoord(100, 100),
+        ScreenCoord(200, 500),
+        ScreenCoord(50, 200),
         Color::rgb(255, 0, 0),
         true,
     );
     draw_2d::triangle(
         ui,
-        Vec2::Screen(100, 100),
-        Vec2::Screen(200, 500),
-        Vec2::Screen(50, 200),
+        ScreenCoord(100, 100),
+        ScreenCoord(200, 500),
+        ScreenCoord(50, 200),
         Color::rgb(0, 255, 0),
         false,
     );
@@ -75,10 +75,10 @@ fn draw_3d(ui: &mut SdlUi, distance: f64, angle_x: f64, angle_y: f64, angle_z: f
     draw::draw_3d::cube(
         ui,
         // coordinates::Vec3::Screen((WIDTH as i32 - 250) / 2, (HEIGHT as i32 - 250) / 2, 1),
-        Vec3::World(0., 0., 20.),
+        Vec3(-15., 15., 20.),
         // Vec3::World(300., 300., 2.0),
         // coordinates::Vec3::Norm(0., 0., 2.0),
-        15,
+        30.,
         angle_x,
         angle_y,
         angle_z,

@@ -1,18 +1,18 @@
 use std::mem::swap;
 
 use super::color::Color;
-use super::coordinates::c2::{to_screen2, Vec2};
+use super::coordinates::c2::ScreenCoord;
 use crate::ui::ui::UI;
 
 pub fn rectangle(
     ui: &mut impl UI,
-    coordinates: Vec2,
+    coordinates: ScreenCoord,
     width: u32,
     height: u32,
     color: Color,
     fill: bool,
 ) {
-    let (x, y) = to_screen2(coordinates).unwrap();
+    let ScreenCoord(x, y) = coordinates;
 
     ui.set_color(color);
     if fill {
@@ -25,7 +25,7 @@ pub fn rectangle(
     }
 }
 
-pub fn square(ui: &mut impl UI, coordinates: Vec2, size: u32, color: Color, fill: bool) {
+pub fn square(ui: &mut impl UI, coordinates: ScreenCoord, size: u32, color: Color, fill: bool) {
     rectangle(ui, coordinates, size, size, color, fill);
 }
 
@@ -37,8 +37,8 @@ fn circle_equation(x: i32, y: i32, a: i32, b: i32, r: i32) -> i32 {
 /**
  * TODO: add fill option
  */
-pub fn circle(ui: &mut impl UI, coordinates: Vec2, radius: i32, color: Color, fill: bool) {
-    let (x, y) = to_screen2(coordinates).unwrap();
+pub fn circle(ui: &mut impl UI, coordinates: ScreenCoord, radius: i32, color: Color, fill: bool) {
+    let ScreenCoord(x, y) = coordinates;
     let begin_y = y - radius;
     let end_y = y;
     let mut loop_x;
@@ -53,8 +53,8 @@ pub fn circle(ui: &mut impl UI, coordinates: Vec2, radius: i32, color: Color, fi
                 if circle_equation(norm_ix, norm_iy, norm_x, norm_y, radius) >= 0 {
                     let dx = x - ix;
                     let dy = y - iy;
-                    rectangle(ui, Vec2::Screen(ix, iy), 2 * dx as u32, 1, color, true);
-                    rectangle(ui, Vec2::Screen(ix, y + dy), 2 * dx as u32, 1, color, true);
+                    rectangle(ui, ScreenCoord(ix, iy), 2 * dx as u32, 1, color, true);
+                    rectangle(ui, ScreenCoord(ix, y + dy), 2 * dx as u32, 1, color, true);
                     loop_x = false;
                 } else {
                     ix -= 1;
@@ -72,10 +72,10 @@ pub fn circle(ui: &mut impl UI, coordinates: Vec2, radius: i32, color: Color, fi
                     while circle_equation(ix, norm_iy, norm_x, norm_y, radius) <= 2 * radius {
                         let dx = x - ix;
                         let dy = y - iy;
-                        square(ui, Vec2::Screen(ix, iy), 1, color, true);
-                        square(ui, Vec2::Screen(ix, y + dy), 1, color, true);
-                        square(ui, Vec2::Screen(x + dx, iy), 1, color, true);
-                        square(ui, Vec2::Screen(x + dx, y + dy), 1, color, true);
+                        square(ui, ScreenCoord(ix, iy), 1, color, true);
+                        square(ui, ScreenCoord(ix, y + dy), 1, color, true);
+                        square(ui, ScreenCoord(x + dx, iy), 1, color, true);
+                        square(ui, ScreenCoord(x + dx, y + dy), 1, color, true);
                         ix -= 1;
                     }
                     ix = ix_save;
@@ -88,9 +88,9 @@ pub fn circle(ui: &mut impl UI, coordinates: Vec2, radius: i32, color: Color, fi
     }
 }
 
-pub fn line(ui: &mut impl UI, point1: Vec2, point2: Vec2, color: Color) {
-    let (mut screen_x1, mut screen_y1) = to_screen2(point1).unwrap();
-    let (mut screen_x2, mut screen_y2) = to_screen2(point2).unwrap();
+pub fn line(ui: &mut impl UI, point1: ScreenCoord, point2: ScreenCoord, color: Color) {
+    let ScreenCoord(mut screen_x1, mut screen_y1) = point1;
+    let ScreenCoord(mut screen_x2, mut screen_y2) = point2;
     let mut diffx = screen_x2 - screen_x1;
     let mut diffy = screen_y2 - screen_y1;
     ui.set_color(color);
@@ -149,16 +149,16 @@ fn sort_points_on_y(
 
 pub fn triangle(
     ui: &mut impl UI,
-    point1: Vec2,
-    point2: Vec2,
-    point3: Vec2,
+    point1: ScreenCoord,
+    point2: ScreenCoord,
+    point3: ScreenCoord,
     color: Color,
     fill: bool,
 ) {
     if fill {
-        let (mut x1, mut y1) = to_screen2(point1).unwrap();
-        let (mut x2, mut y2) = to_screen2(point2).unwrap();
-        let (mut x3, mut y3) = to_screen2(point3).unwrap();
+        let ScreenCoord(mut x1, mut y1) = point1;
+        let ScreenCoord(mut x2, mut y2) = point2;
+        let ScreenCoord(mut x3, mut y3) = point3;
         sort_points_on_y((&mut x1, &mut y1), (&mut x2, &mut y2), (&mut x3, &mut y3));
 
         // coeficients
@@ -176,14 +176,14 @@ pub fn triangle(
         for iy in y1..=y2 {
             let ix1 = (direction13 * (iy - y1) as f64) as i32 + x1;
             let ix2 = (direction12 * (iy - y2) as f64) as i32 + x2;
-            line(ui, Vec2::Screen(ix1, iy), Vec2::Screen(ix2, iy), color);
+            line(ui, ScreenCoord(ix1, iy), ScreenCoord(ix2, iy), color);
         }
 
         // second half triangle
         for iy in y2..=y3 {
             let ix2 = (direction13 * (iy - y1) as f64) as i32 + x1;
             let ix3 = (direction23 * (iy - y3) as f64) as i32 + x3;
-            line(ui, Vec2::Screen(ix2, iy), Vec2::Screen(ix3, iy), color);
+            line(ui, ScreenCoord(ix2, iy), ScreenCoord(ix3, iy), color);
         }
     } else {
         line(ui, point1, point2, color);
