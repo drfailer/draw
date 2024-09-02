@@ -1,7 +1,7 @@
 use super::ui::UI;
 use sdl2::{event::Event, keyboard::Keycode, rect::Rect};
 
-pub const WIDTH: u32 = 800;
+pub const WIDTH: u32 = 1000;
 pub const HEIGHT: u32 = 600;
 
 pub struct SdlUi {

@@ -1,7 +1,7 @@
 use std::mem::swap;
 
 use super::color::Color;
-use super::coordinates::{norm_to_screen2, Vec2};
+use super::coordinates_old::{norm_to_screen2, Vec2};
 use crate::ui::ui::UI;
 
 pub fn rectangle(ui: &mut impl UI, coord: Vec2, width: u32, height: u32, color: Color, fill: bool) {

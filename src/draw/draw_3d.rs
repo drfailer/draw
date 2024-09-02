@@ -1,7 +1,7 @@
 use std::mem::swap;
 
 use super::color::Color;
-use super::coordinates::{norm_to_screen3, rotate, screen_to_norm3, Vec3};
+use super::coordinates_old::{norm_to_screen3, rotate, screen_to_norm3, Vec3};
 use crate::ui::ui::UI;
 
 pub fn line(ui: &mut impl UI, point1: Vec3, point2: Vec3, color: Color) {
@@ -65,6 +65,7 @@ pub fn cube(
     color: Color,
 ) {
     let (x, y, z) = screen_to_norm3(coord);
+    // todo: wrong value
     let ratio = (ui.width() + ui.height()) as f64 / 2.0;
     let width = size as f64 / ui.width() as f64;
     let height = size as f64 / ui.height() as f64;
@@ -83,7 +84,7 @@ pub fn cube(
         point1, point2, point3, point4, point5, point6, point7, point8,
     ]);
 
-    let mut points = vec![
+    let points = vec![
         &mut point1,
         &mut point2,
         &mut point3,

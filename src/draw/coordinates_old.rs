@@ -1,5 +1,3 @@
-use sdl2::libc::sockaddr_in;
-
 use crate::ui::sdl::{HEIGHT, WIDTH};
 use libm::{cos, sin};
 
@@ -67,6 +65,9 @@ pub enum Vec3 {
     Screen(i32, i32, i32),
     Norm(f64, f64, f64),
 }
+
+// todo: add constants / variables for the position of the camara and the view matrix (make it
+// detatchec from the screen)
 
 // todo: width and height should be parameters
 pub fn norm_to_screen3(coord: Vec3) -> (i32, i32, i32) {
