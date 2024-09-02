@@ -1,43 +1,20 @@
 use std::mem::swap;
 
 use super::color::Color;
-use super::coordinates_old::{norm_to_screen3, rotate, screen_to_norm3, Vec3};
+use super::coordinates_old::{norm_to_screen3, rotate, screen_to_norm3, Vec2, Vec3};
+use super::draw_2d;
 use crate::ui::ui::UI;
 
 pub fn line(ui: &mut impl UI, point1: Vec3, point2: Vec3, color: Color) {
     let (mut screen_x1, mut screen_y1, _) = norm_to_screen3(point1);
     let (mut screen_x2, mut screen_y2, _) = norm_to_screen3(point2);
-    let mut diffx = screen_x2 - screen_x1;
-    let mut diffy = screen_y2 - screen_y1;
-    ui.set_color(color);
 
-    // if diffy.abs() <= diffx.abs() we iterate on x, otherwise we iterate on y
-    // this is done to avoid drawing broken lines
-    if diffy.abs() <= diffx.abs() {
-        if screen_x1 > screen_x2 {
-            swap(&mut screen_x1, &mut screen_x2);
-            swap(&mut screen_y1, &mut screen_y2);
-            diffx = -diffx;
-            diffy = -diffy;
-        }
-        let direction = diffy as f64 / diffx as f64;
-        for ix in screen_x1..=screen_x2 {
-            let iy = (direction * (ix - screen_x1) as f64) as i32 + screen_y1;
-            ui.draw_pixel(ix, iy);
-        }
-    } else {
-        if screen_y1 > screen_y2 {
-            swap(&mut screen_x1, &mut screen_x2);
-            swap(&mut screen_y1, &mut screen_y2);
-            diffx = -diffx;
-            diffy = -diffy;
-        }
-        let direction = diffx as f64 / diffy as f64;
-        for iy in screen_y1..=screen_y2 {
-            let ix = (direction * (iy - screen_y1) as f64) as i32 + screen_x1;
-            ui.draw_pixel(ix, iy);
-        }
-    }
+    draw_2d::line(
+        ui,
+        Vec2::Screen(screen_x1, screen_y1),
+        Vec2::Screen(screen_x2, screen_y2),
+        color,
+    );
 }
 
 fn barycenter3(points: Vec<Vec3>) -> Vec3 {
