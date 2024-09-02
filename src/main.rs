@@ -74,10 +74,7 @@ pub fn draw_2d(ui: &mut SdlUi) {
 fn draw_3d(ui: &mut SdlUi, distance: f64, angle_x: f64, angle_y: f64, angle_z: f64) {
     draw::draw_3d::cube(
         ui,
-        // coordinates::Vec3::Screen((WIDTH as i32 - 250) / 2, (HEIGHT as i32 - 250) / 2, 1),
-        Vec3(-15., 15., 20.),
-        // Vec3::World(300., 300., 2.0),
-        // coordinates::Vec3::Norm(0., 0., 2.0),
+        Vec3(-15., 15., distance),
         30.,
         angle_x,
         angle_y,
@@ -94,15 +91,17 @@ pub fn main() {
     let mut angle_x: f64 = 0.;
     let mut angle_y: f64 = 0.;
     let mut angle_z: f64 = 0.;
+    let mut counter = 0.;
 
     while ui.run() {
-        // draw_2d(&mut ui);
         ui.clear(draw::color::BLACK);
-        let distance = libm::cos(angle_y) + 2.0;
+        draw_2d(&mut ui);
+        let distance = 5. * libm::cos(counter) + 20.0;
         draw_3d(&mut ui, distance, angle_x, angle_y, angle_z);
         angle_x += 0.01;
         angle_y += 0.01;
         angle_z += 0.01;
+        counter += 0.05;
         ui.handl_events();
         ui.present();
         std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));

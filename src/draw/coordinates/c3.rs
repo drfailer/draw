@@ -1,7 +1,5 @@
 use std::cmp::max;
 
-use crate::ui::sdl::{HEIGHT, WIDTH};
-
 use super::config::{DISTANCE_CAMERA, VIEW_DISTANCE, VIEW_SCREEN_HEIGHT, VIEW_SCREEN_WIDTH};
 use super::c2::ScreenCoord;
 use libm::{cos, sin};
@@ -19,6 +17,7 @@ pub struct ViewScreenCoord(pub f64, pub f64);
 /*                                    Vec3                                    */
 /******************************************************************************/
 
+#[allow(dead_code)]
 impl Vec3 {
     pub fn to_local(self, center: Vec3) -> LocalCoord3 {
         let Vec3(xc, yc, zc) = center;
@@ -42,6 +41,7 @@ impl Vec3 {
 /*                                LocalCoord3                                 */
 /******************************************************************************/
 
+#[allow(dead_code)]
 impl LocalCoord3 {
     pub fn to_world(self) -> Vec3 {
         let LocalCoord3(point, center) = self;
@@ -73,6 +73,7 @@ impl LocalCoord3 {
 /*                              ViewScreenCoord                               */
 /******************************************************************************/
 
+#[allow(dead_code)]
 impl ViewScreenCoord {
     // -500..500 -> 0..W
     // x in -500..500
