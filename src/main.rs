@@ -4,7 +4,7 @@ mod draw;
 mod ui;
 
 use draw::color::Color;
-use draw::coordinates_old;
+use draw::coordinates::{c2::Vec2, c3::Vec3};
 use draw::draw_2d;
 use std::time::Duration;
 use ui::sdl::SdlUi;
@@ -13,7 +13,7 @@ use ui::ui::UI;
 pub fn draw_2d(ui: &mut SdlUi) {
     draw_2d::rectangle(
         ui,
-        coordinates_old::Vec2::Screen(20, 20),
+        Vec2::Screen(20, 20),
         80,
         40,
         Color::rgb(255, 255, 255),
@@ -21,7 +21,7 @@ pub fn draw_2d(ui: &mut SdlUi) {
     );
     draw_2d::square(
         ui,
-        coordinates_old::Vec2::Screen(180, 180),
+        Vec2::Screen(180, 180),
         40,
         Color::rgb(255, 0, 0),
         false,
@@ -29,50 +29,43 @@ pub fn draw_2d(ui: &mut SdlUi) {
     for radius in (1..100).step_by(5) {
         draw_2d::circle(
             ui,
-            coordinates_old::Vec2::Screen(200, 200),
+            Vec2::Screen(200, 200),
             radius,
             Color::rgb(255, 255, 255),
             false,
         );
     }
-    draw_2d::circle(
-        ui,
-        coordinates_old::Vec2::Norm(-1., -1.),
-        20,
-        Color::rgb(255, 255, 255),
-        false,
-    );
     draw_2d::line(
         ui,
-        coordinates_old::Vec2::Norm(0., 0.),
-        coordinates_old::Vec2::Norm(-1., 1.),
+        Vec2::Screen(0, 0),
+        Vec2::Screen(0, ui.height() as i32),
         Color::rgb(0, 255, 0),
     );
     draw_2d::line(
         ui,
-        coordinates_old::Vec2::Norm(0., 0.),
-        coordinates_old::Vec2::Norm(1., 1.),
+        Vec2::Screen(0, 0),
+        Vec2::Screen(ui.width() as i32, ui.height() as i32),
         Color::rgb(0, 0, 255),
     );
     draw_2d::line(
         ui,
-        coordinates_old::Vec2::Norm(0., 0.),
-        coordinates_old::Vec2::Norm(0.25, 1.),
+        Vec2::Screen(0, 0),
+        Vec2::Screen(250, ui.height() as i32),
         Color::rgb(0, 255, 255),
     );
     draw_2d::triangle(
         ui,
-        coordinates_old::Vec2::Norm(-0.5, -0.5),
-        coordinates_old::Vec2::Norm(0.5, -0.7),
-        coordinates_old::Vec2::Norm(0., 0.5),
+        Vec2::Screen(100, 100),
+        Vec2::Screen(200, 500),
+        Vec2::Screen(50, 200),
         Color::rgb(255, 0, 0),
         true,
     );
     draw_2d::triangle(
         ui,
-        coordinates_old::Vec2::Norm(-0.5, -0.5),
-        coordinates_old::Vec2::Norm(0.5, -0.7),
-        coordinates_old::Vec2::Norm(0., 0.5),
+        Vec2::Screen(100, 100),
+        Vec2::Screen(200, 500),
+        Vec2::Screen(50, 200),
         Color::rgb(0, 255, 0),
         false,
     );
@@ -82,9 +75,10 @@ fn draw_3d(ui: &mut SdlUi, distance: f64, angle_x: f64, angle_y: f64, angle_z: f
     draw::draw_3d::cube(
         ui,
         // coordinates::Vec3::Screen((WIDTH as i32 - 250) / 2, (HEIGHT as i32 - 250) / 2, 1),
-        coordinates_old::Vec3::Norm(-0.5, 0.5, distance),
+        Vec3::World(0., 0., 20.),
+        // Vec3::World(300., 300., 2.0),
         // coordinates::Vec3::Norm(0., 0., 2.0),
-        500,
+        15,
         angle_x,
         angle_y,
         angle_z,
@@ -100,12 +94,11 @@ pub fn main() {
     let mut angle_x: f64 = 0.;
     let mut angle_y: f64 = 0.;
     let mut angle_z: f64 = 0.;
-    let mut distance: f64;
 
     while ui.run() {
         // draw_2d(&mut ui);
         ui.clear(draw::color::BLACK);
-        distance = libm::cos(angle_y) + 2.0;
+        let distance = libm::cos(angle_y) + 2.0;
         draw_3d(&mut ui, distance, angle_x, angle_y, angle_z);
         angle_x += 0.01;
         angle_y += 0.01;

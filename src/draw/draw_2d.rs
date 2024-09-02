@@ -1,25 +1,32 @@
 use std::mem::swap;
 
 use super::color::Color;
-use super::coordinates_old::{norm_to_screen2, Vec2};
+use super::coordinates::c2::{to_screen2, Vec2};
 use crate::ui::ui::UI;
 
-pub fn rectangle(ui: &mut impl UI, coord: Vec2, width: u32, height: u32, color: Color, fill: bool) {
-    let (sx, sy) = norm_to_screen2(coord);
+pub fn rectangle(
+    ui: &mut impl UI,
+    coordinates: Vec2,
+    width: u32,
+    height: u32,
+    color: Color,
+    fill: bool,
+) {
+    let (x, y) = to_screen2(coordinates).unwrap();
 
     ui.set_color(color);
     if fill {
-        ui.draw_rect(sx, sy, width, height);
+        ui.draw_rect(x, y, width, height);
     } else {
-        ui.draw_rect(sx, sy, width, 1);
-        ui.draw_rect(sx, sy + height as i32, width, 1);
-        ui.draw_rect(sx, sy, 1, height);
-        ui.draw_rect(sx + width as i32, sy, 1, height);
+        ui.draw_rect(x, y, width, 1);
+        ui.draw_rect(x, y + height as i32, width, 1);
+        ui.draw_rect(x, y, 1, height);
+        ui.draw_rect(x + width as i32, y, 1, height);
     }
 }
 
-pub fn square(ui: &mut impl UI, coord: Vec2, size: u32, color: Color, fill: bool) {
-    rectangle(ui, coord, size, size, color, fill);
+pub fn square(ui: &mut impl UI, coordinates: Vec2, size: u32, color: Color, fill: bool) {
+    rectangle(ui, coordinates, size, size, color, fill);
 }
 
 fn circle_equation(x: i32, y: i32, a: i32, b: i32, r: i32) -> i32 {
@@ -30,8 +37,8 @@ fn circle_equation(x: i32, y: i32, a: i32, b: i32, r: i32) -> i32 {
 /**
  * TODO: add fill option
  */
-pub fn circle(ui: &mut impl UI, coord: Vec2, radius: i32, color: Color, fill: bool) {
-    let (x, y) = norm_to_screen2(coord);
+pub fn circle(ui: &mut impl UI, coordinates: Vec2, radius: i32, color: Color, fill: bool) {
+    let (x, y) = to_screen2(coordinates).unwrap();
     let begin_y = y - radius;
     let end_y = y;
     let mut loop_x;
@@ -82,8 +89,8 @@ pub fn circle(ui: &mut impl UI, coord: Vec2, radius: i32, color: Color, fill: bo
 }
 
 pub fn line(ui: &mut impl UI, point1: Vec2, point2: Vec2, color: Color) {
-    let (mut screen_x1, mut screen_y1) = norm_to_screen2(point1);
-    let (mut screen_x2, mut screen_y2) = norm_to_screen2(point2);
+    let (mut screen_x1, mut screen_y1) = to_screen2(point1).unwrap();
+    let (mut screen_x2, mut screen_y2) = to_screen2(point2).unwrap();
     let mut diffx = screen_x2 - screen_x1;
     let mut diffy = screen_y2 - screen_y1;
     ui.set_color(color);
@@ -149,9 +156,9 @@ pub fn triangle(
     fill: bool,
 ) {
     if fill {
-        let (mut x1, mut y1) = norm_to_screen2(point1);
-        let (mut x2, mut y2) = norm_to_screen2(point2);
-        let (mut x3, mut y3) = norm_to_screen2(point3);
+        let (mut x1, mut y1) = to_screen2(point1).unwrap();
+        let (mut x2, mut y2) = to_screen2(point2).unwrap();
+        let (mut x3, mut y3) = to_screen2(point3).unwrap();
         sort_points_on_y((&mut x1, &mut y1), (&mut x2, &mut y2), (&mut x3, &mut y3));
 
         // coeficients
